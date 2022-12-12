@@ -1,0 +1,29 @@
+version: '3.1'
+services: 
+
+    filial-postgres:
+        image: "postgres:15.1-alpine"
+        container_name: filial-postgres
+        volumes:
+            - ./filial-data:/var/lib/postgresql/data
+        ports:
+            - 5432:5432
+        environment:
+            - POSTGRES_DB=filial
+            - POSTGRES_USER=filial
+            - POSTGRES_PASSWORD=filial
+            
+    filial-api:
+        build: .
+        container_name: filial-api
+        environment:
+            - DB_SERVER=filial-postgres
+            - POSTGRES_DB=filial
+            - POSTGRES_USER=filial
+            - POSTGRES_PASSWORD=filial
+        ports:
+            - 8080:8080
+        links:
+            - filial-postgres
+volumes:
+    filial-data:

@@ -1,17 +1,19 @@
 package br.com.fink.filialapi.exceptions;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ValidationError extends StandardError {
-    
+public class ValidationErrorDetails extends ErrorDetails {
+
     private List<FieldMessage> errors = new ArrayList<>();
 
-    public ValidationError() {
+    public ValidationErrorDetails() {
     }
 
-    public ValidationError(long timestamp, int status, String message) {
-        super(timestamp, status, message);
+    public ValidationErrorDetails(LocalDateTime timestamp, int status, String message, String details,
+            String developerMessage) {
+        super(timestamp, status, message, details, developerMessage);
     }
 
     public List<FieldMessage> getErrors() {
@@ -21,5 +23,5 @@ public class ValidationError extends StandardError {
     public void addErrors(String fieldName, String message) {
         this.errors.add(new FieldMessage(fieldName, message));
     }
-   
+
 }

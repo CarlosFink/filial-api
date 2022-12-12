@@ -1,9 +1,11 @@
 package br.com.fink.filialapi.exceptions;
 
-import javax.servlet.ServletRequest;
+import java.time.LocalDateTime;
 
+import javax.servlet.ServletRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
@@ -11,8 +13,9 @@ import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.ResponseStatus;
 
-import br.com.fink.filialapi.services.exceptions.DataIntegrityViolationExcept;
+import br.com.fink.filialapi.services.exceptions.ExceptionDefault;
 import br.com.fink.filialapi.services.exceptions.ObjectNotFoundException;
 
 @ControllerAdvice
@@ -20,39 +23,70 @@ public class ResourceExceptionHandler {
     private static final Logger log = LoggerFactory.getLogger(ResourceExceptionHandler.class);
 
     @ExceptionHandler(ObjectNotFoundException.class)
-    public ResponseEntity<StandardError> objectNotFoundException(ObjectNotFoundException e, ServletRequest request) {
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public ResponseEntity<ErrorDetails> objectNotFoundException(ObjectNotFoundException e, ServletRequest request) {
         log.info("Filial não encontrada");
-        StandardError error = new StandardError((System.currentTimeMillis()), HttpStatus.NOT_FOUND.value(),
-                e.getMessage());
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(error);
+        ErrorDetails errorDetails = new ErrorDetails().builder()
+                .timestamp(LocalDateTime.now())
+                .status(HttpStatus.NOT_FOUND.value())
+                .message(e.getMessage())
+                .details(e.getMessage())
+                .developerMessage(e.getClass().getName())
+                .build();
+        return new ResponseEntity<>(errorDetails, HttpStatus.NOT_FOUND);
     }
 
-    @ExceptionHandler(DataIntegrityViolationExcept.class)
-    public ResponseEntity<StandardError> dataIntegrityViolationException(DataIntegrityViolationExcept e,
+    @ExceptionHandler(DataIntegrityViolationException.class)
+    public ResponseEntity<ErrorDetails> dataIntegrityViolationException(DataIntegrityViolationException e,
             ServletRequest request) {
         log.info("CNPJ já existente");
-        StandardError error = new StandardError((System.currentTimeMillis()), HttpStatus.BAD_REQUEST.value(),
-                e.getMessage());
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
+        ErrorDetails errorDetails = new ErrorDetails().builder()
+                .timestamp(LocalDateTime.now())
+                .status(HttpStatus.BAD_REQUEST.value())
+                .message("Ação não permitida, CNPJ existente")
+                .details(e.getMessage())
+                .developerMessage(e.getClass().getName())
+                .build();
+        return new ResponseEntity<>(errorDetails, HttpStatus.BAD_REQUEST);
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<StandardError> validationError(MethodArgumentNotValidException e, ServletRequest request) {
-        log.info("Erro na validação dos campos");
-        ValidationError errors = new ValidationError(System.currentTimeMillis(), HttpStatus.BAD_REQUEST.value(),
-                "Erro na validação dos campos");
+    public ResponseEntity<ErrorDetails> methodArgumentNotValidException(MethodArgumentNotValidException e,
+            ServletRequest request) {
+        log.info("Erro na validação dos campos");        
+        ValidationErrorDetails errorDetails = new ValidationErrorDetails(LocalDateTime.now(),
+                HttpStatus.BAD_REQUEST.value(),
+                "Erro na validação dos campos", e.getMessage(), e.getClass().getName());
         for (FieldError fieldError : e.getBindingResult().getFieldErrors()) {
-            errors.addErrors(fieldError.getField(), fieldError.getDefaultMessage());
+            errorDetails.addErrors(fieldError.getField(), fieldError.getDefaultMessage());
         }
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errors);
+        return new ResponseEntity<>(errorDetails, HttpStatus.BAD_REQUEST);
     }
 
     @ExceptionHandler(HttpMessageNotReadableException.class)
-    public ResponseEntity<StandardError> HttpMessageNotReadableException(HttpMessageNotReadableException e,
+    public ResponseEntity<ErrorDetails> httpMessageNotReadableException(HttpMessageNotReadableException e,
             ServletRequest request) {
-        log.info("Tipo de Filial não é válido");
-        StandardError error = new StandardError((System.currentTimeMillis()), HttpStatus.BAD_REQUEST.value(),
-                "Tipo de Filial não é válido");
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
+        log.info("Erro na formatação da requisição");
+        ErrorDetails errorDetails = new ErrorDetails().builder()
+                .timestamp(LocalDateTime.now())
+                .status(HttpStatus.BAD_REQUEST.value())
+                .message("Erro na formatação da requisição")
+                .details(e.getMessage())
+                .developerMessage(e.getClass().getName())
+                .build();
+        return new ResponseEntity<>(errorDetails, HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(ExceptionDefault.class)
+    public ResponseEntity<ErrorDetails> exceptionDefault(ExceptionDefault e, ServletRequest request) {
+        log.info("Erro execução da requisição");
+        ErrorDetails errorDetails = new ErrorDetails().builder()
+                .timestamp(LocalDateTime.now())
+                .status(HttpStatus.BAD_REQUEST.value())
+                .message("Erro execução da requisição")
+                .details(e.getMessage())
+                .developerMessage(e.getClass().getName())
+                .build();
+        return new ResponseEntity<>(errorDetails, HttpStatus.BAD_REQUEST);
     }
 }

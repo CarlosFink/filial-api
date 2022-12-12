@@ -1,9 +1,6 @@
 package br.com.fink.filialapi.models;
 
 import java.util.Date;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
@@ -12,9 +9,6 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
-import javax.persistence.Transient;
-import javax.validation.constraints.NotEmpty;
-import javax.validation.constraints.NotNull;
 
 @Entity
 @Table(name="Filial")
@@ -25,41 +19,33 @@ public class Filial {
     @Column(name = "ID")
     private Integer id;
 
-    @NotEmpty
     @Column(name = "Nome", length = 50, nullable = false )
     private String nome;
 
-    @NotEmpty
     @Column(name = "CNPJ", length = 14, nullable = false, unique = true)
     private String cnpj;
 
     @Column(name = "Cidade", length = 20)
     private String cidade;
 
-    @NotEmpty    
     @Column(name = "UF", length = 2, nullable = false)
     private String uf;
 
-    @NotNull
     @Enumerated(EnumType.STRING)
     @Column(name = "Tipo", length = 6, nullable = false)
     private ETipo tipo;
 
-    @NotNull
     @Column(name = "Ativo", nullable = false)
     private Boolean ativo;
 
-    @NotNull
     @Column(name = "DataCadastro", nullable = false)
     private Date dataCadastro;
 
     @Column(name = "UltimaAtualizacao")
     private Date ultimaAtualizacao;
 
-    @Transient
-    private String cnpjEditado;
-
     public Filial() {
+      // Construtor sem parâmetros
     }
 
     public Integer getId() {
@@ -134,15 +120,6 @@ public class Filial {
         this.ultimaAtualizacao = ultimaAtualizacao;
     }
 
-    public String getCnpjEditado() {
-        Pattern pattern = Pattern.compile("(\\d{2})(\\d{3})(\\d{3})(\\d{4})(\\d{2})");
-        Matcher matcher = pattern.matcher(this.cnpj);
-        if (matcher.find()) {
-            cnpjEditado = matcher.replaceAll("$1.$2.$3/$4-$5");
-        }
-        return cnpjEditado;
-    }
-
     @Override
     public int hashCode() {
         final int prime = 31;
@@ -166,5 +143,5 @@ public class Filial {
         } else if (!id.equals(other.id))
             return false;
         return true;
-    }      
+    }          
 }

@@ -1,0 +1,10 @@
+spring:
+    profiles:
+        active: dev
+    jpa:
+        properties:
+            hibernate:
+                show_sql: false
+                use_sql_coments: true
+                format_sql: true
+                type: trace

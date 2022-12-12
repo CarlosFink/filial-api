@@ -2,7 +2,7 @@ package br.com.fink.filialapi.exceptions;
 
 public class FieldMessage {
     
-    public String fieldName;
+    private String fieldName;
     private String message;
     
     public FieldMessage() {
