@@ -12,10 +12,13 @@ services:
             - POSTGRES_DB=filial
             - POSTGRES_USER=filial
             - POSTGRES_PASSWORD=filial
+        networks:
+            - filial-network
             
     filial-api:
         build: .
         container_name: filial-api
+        image: filial-api
         environment:
             - DB_SERVER=filial-postgres
             - POSTGRES_DB=filial
@@ -25,5 +28,38 @@ services:
             - 8080:8080
         links:
             - filial-postgres
+        networks:
+            - filial-network
+            
+    prometheus:
+        image: "prom/prometheus:v2.41.0"
+        container_name: prometheus       
+        volumes:
+            - "./prometheus-grafana/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml"
+        command:
+            - "--config.file=/etc/prometheus/prometheus.yml"
+        ports:
+            - "9090:9090"
+        networks:
+            - filial-network
+    
+    grafana:
+        image: "grafana/grafana:9.3.2"
+        container_name: grafana
+        volumes:
+           - "./prometheus-grafana/grafana/datasource.yml:/etc/grafana/provisioning/datasources/datasource.yml"
+        environment:
+           - GF_SECURITY_ADMIN_USER=admin
+           - GF_SECURITY_ADMIN_PASSWORD=admin
+           - GF_USERS_ALLOW_SIGN_UP=false
+        ports:
+           - "3000:3000"   
+        networks:
+            - filial-network
+            
 volumes:
     filial-data:
+
+networks:
+    filial-network:    
+        driver: bridge

@@ -2,7 +2,9 @@ package br.com.fink.filialapi.services.exceptions;
 
 public class ObjectNotFoundException extends RuntimeException {
     
-    public ObjectNotFoundException(String message, Throwable cause) {
+	private static final long serialVersionUID = 1L;
+
+	public ObjectNotFoundException(String message, Throwable cause) {
         super(message, cause);
     }
 

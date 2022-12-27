@@ -15,7 +15,6 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
-import br.com.fink.filialapi.services.exceptions.ExceptionDefault;
 import br.com.fink.filialapi.services.exceptions.ObjectNotFoundException;
 
 @ControllerAdvice
@@ -75,18 +74,5 @@ public class ResourceExceptionHandler {
                 .developerMessage(e.getClass().getName())
                 .build();
         return new ResponseEntity<>(errorDetails, HttpStatus.BAD_REQUEST);
-    }
-
-    @ExceptionHandler(ExceptionDefault.class)
-    public ResponseEntity<ErrorDetails> exceptionDefault(ExceptionDefault e, ServletRequest request) {
-        log.info("Erro execução da requisição");
-        ErrorDetails errorDetails = new ErrorDetails().builder()
-                .timestamp(LocalDateTime.now())
-                .status(HttpStatus.BAD_REQUEST.value())
-                .message("Erro execução da requisição")
-                .details(e.getMessage())
-                .developerMessage(e.getClass().getName())
-                .build();
-        return new ResponseEntity<>(errorDetails, HttpStatus.BAD_REQUEST);
-    }
+    }  
 }

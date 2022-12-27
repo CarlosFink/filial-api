@@ -20,17 +20,21 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import br.com.fink.filialapi.payload.FilialDTO;
 import br.com.fink.filialapi.services.FilialService;
+import io.micrometer.core.instrument.MeterRegistry;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
 @Tag(name = "Filial", description = "Filial API")
 @RestController
-@RequestMapping("/api/filial")
+@RequestMapping("/filiais")
 public class FilialController {
 
     @Autowired
     private FilialService filialService;
+    
+    @Autowired
+    private MeterRegistry registry;
 
     @Operation(summary = "Lista filiais", description = "Retorna uma lista de filiais cadastradas")
     @GetMapping
@@ -53,6 +57,7 @@ public class FilialController {
                 .fromCurrentRequest()
                 .path("/{id}")
                 .buildAndExpand(filialDTO.getId()).toUri();
+        registry.counter("contador.filiais.inseridas").increment();
         return ResponseEntity.created(uri).body(filialDTO);
     }
 

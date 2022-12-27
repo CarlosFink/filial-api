@@ -27,7 +27,7 @@ public class FilialService {
         log.info("Obtendo lista de Filiais");
         Page<Filial> filialList = filialRepository.findAll(pageable);
         log.info("{} filial(is) obtidas", filialList.getSize()); 
-        return filialList.map(this::convertFilialToDto);
+        return filialList.map(this::convertFilialToDto);        
     }
 
     public FilialDTO findById(Integer id) {
@@ -66,11 +66,11 @@ public class FilialService {
 
     public FilialDTO activateDeactivate(Integer id) {
         FilialDTO filialDTO = this.findById(id);
-        if (Boolean.FALSE.equals(filialDTO.getAtivo())) {
-            log.info("Ativando Filial {}", id);
+		if (Boolean.FALSE.equals(filialDTO.getAtivo())) {
+        	log.info("Ativando Filial {}", id); 
         } else {
-            log.info("Desativando Filial {}", id);
-        }
+        	log.info("Desativando Filial {}", id);
+        }        
         filialDTO.setAtivo(!filialDTO.getAtivo());
         Filial filial = filialRepository.save(convertDtoToFilial(filialDTO));
         if (Boolean.TRUE.equals(filial.getAtivo())) {
