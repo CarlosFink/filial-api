@@ -6,6 +6,6 @@ COPY . $APP_HOME
 RUN --mount=type=cache,target=/root/.m2 mvn -f $APP_HOME/pom.xml clean package -Dmaven.test.skip=true
 
 FROM openjdk:17-alpine
-COPY --from=MAVEN_BUILD /workspace/target/*.jar app.jar
+COPY --from=MAVEN_BUILD /workspace/target/*.jar filial.jar
 EXPOSE 8080
-ENTRYPOINT ["java","-Dspring.profiles.active=prod","-jar","app.jar"]
+ENTRYPOINT ["java","-Dspring.profiles.active=prod","-jar","filial.jar"]
